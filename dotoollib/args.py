@@ -26,7 +26,7 @@ parser_create.add_argument('-n', '--name',
 parser_create.add_argument('-r', '--region',
                            action='store',
                            required=False,
-#                           choices=Config['regions'],
+                           choices=Config['Regions'],
                            help='Region')
 
 parser_action = subparser.add_parser('action')

@@ -2,6 +2,7 @@
 
 import sys
 from pprint import pprint
+import json
 
 # Ensure that this code is running in Python 3 or greater
 if sys.version_info < (3, 0):
@@ -38,19 +39,23 @@ if 'create_type' in Args:
                                    size_slug='512mb',  # 512MB
                                    backups=False)
     pprint(vars(droplet))
+
 if 'update' in Args:
-    f = open('regions.json', 'w')
-    f.truncate()
-    for region in (manager.get_all_regions()):
+    # Get the list of regions
+    regions = manager.get_all_regions()
+    regions_list = []
+
+    # Strip unneeded keys from each entry and append the modified entry to the list
+    for region in regions:
         r = vars(region)
         r.pop('token', None)
         r.pop('end_point', None)
         r.pop('_log', None)
-        #print(vars(r['_log']))
-        pprint(r)
-        f.write(str(r))
+        regions_list.append(r)
+
+    # Save the modified list in a json file
+    f = open('regions.json', 'w')
+    f.truncate()
+    f.write(json.dumps(regions_list))
+    pprint(json.dumps(regions_list))
     f.close()
-        
-#pprint(vars(Config._sections))
-#pprint(vars(Config['regions']))
-#pprint(Config['regions']['nyc1'])
