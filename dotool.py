@@ -17,7 +17,9 @@ except ImportError:
     exit(1)
 
 # Import local libraries
-from dotoollib import Config, Args
+from dotoollib import Config, ArgsParser, Actions
+
+doconfig = Config
 
 manager = digitalocean.Manager(token=Config['auth']['token'])
 try:
@@ -26,36 +28,8 @@ except:
     print('Unable to connect to DigitalOcean')
     exit(1)
 
-pprint(vars(Args))
+actions = Actions(Config, manager)
+parser = ArgsParser(Config, actions)
 
-if 'create_type' in Args:
-    if 'region' not in Args:
-        print('Please provide a region')
-        exit(1)
-    droplet = digitalocean.Droplet(token=Config['auth']['token'],
-                                   name=Args.name,
-                                   region=Args.region,
-                                   image='ubuntu-14-04-x64', # Ubuntu 14.04 x64
-                                   size_slug='512mb',  # 512MB
-                                   backups=False)
-    pprint(vars(droplet))
-
-if 'update' in Args:
-    # Get the list of regions
-    regions = manager.get_all_regions()
-    regions_list = []
-
-    # Strip unneeded keys from each entry and append the modified entry to the list
-    for region in regions:
-        r = vars(region)
-        r.pop('token', None)
-        r.pop('end_point', None)
-        r.pop('_log', None)
-        regions_list.append(r)
-
-    # Save the modified list in a json file
-    f = open('regions.json', 'w')
-    f.truncate()
-    f.write(json.dumps(regions_list))
-    pprint(json.dumps(regions_list))
-    f.close()
+pprint(vars(parser.args))
+parser.args.func(parser.args)
