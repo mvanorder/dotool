@@ -2,7 +2,6 @@
 
 import sys
 from pprint import pprint
-import json
 
 # Ensure that this code is running in Python 3 or greater
 if sys.version_info < (3, 0):

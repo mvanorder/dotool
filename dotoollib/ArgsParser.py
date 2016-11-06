@@ -38,7 +38,7 @@ class ArgsParser(object):
         parser_create.set_defaults(func=self.Actions.create)
 
         parser_action = subparser.add_parser('action')
-        parser_action.add_argument('action_type',
+        parser_action.add_argument('action',
                                    default='server',
                                    const='server',
                                    nargs='?',
@@ -46,7 +46,7 @@ class ArgsParser(object):
                                    help='Server actions (default: %(default)s).')
 
         parser_status = subparser.add_parser('status')
-        parser_status.add_argument('request_type',
+        parser_status.add_argument('request',
                                    default='status',
                                    const='status',
                                    nargs='?',
@@ -59,5 +59,6 @@ class ArgsParser(object):
                                    const='all',
                                    nargs='?',
                                    choices=['all', 'regions'])
+        parser_update.set_defaults(func=self.Actions.update)
 
         return parser.parse_args()

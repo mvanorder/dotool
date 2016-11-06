@@ -3,15 +3,22 @@ import os
 import json
 from pprint import pprint
 
+def loadstore():
+    try:
+        f = open('datastore.json', 'r')
+    except:
+        print('Unable to load regions.  Please run update.\n')
+        return({'regions': {},
+                 'dist_images': {},
+                 'app_images': {}})
+
+    return json.loads(f.read())
+    f.close()
+
 Config = ConfigParser()
 Config.read(['defaults.cfg', '/etc/dotool.cfg', os.path.expanduser('~/.dotool.cfg')])
 addition_configs = {}
-Regions = {}
-with open('regions.json') as data_file:
-    data = json.load(data_file)
+store = loadstore()
 
-for region in data:
-    Regions[region['slug']] = region['name']
-
-addition_configs['Regions'] = Regions
+addition_configs['Regions'] = store['regions']
 Config.read_dict(addition_configs)

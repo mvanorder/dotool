@@ -1,4 +1,15 @@
 import digitalocean
+import json
+from pprint import pprint
+
+def stripvars(source):
+    return_dict = {}
+    for item in source:
+        i = vars(item)
+        for key in ['token', 'end_point', '_log']:
+            i.pop(key, None)
+        return_dict[i['slug']] = i
+    return(return_dict)
 
 class Actions:
     def __init__(self, config, manager):
@@ -26,21 +37,10 @@ class Actions:
         pprint(vars(droplet))
 
     def update(self, args):
-        # Get the list of regions
-        regions = manager.get_all_regions()
-        regions_list = []
-
-        # Strip unneeded keys from each entry and append the modified entry to the list
-        for region in regions:
-            r = vars(region)
-            r.pop('token', None)
-            r.pop('end_point', None)
-            r.pop('_log', None)
-            regions_list.append(r)
-
-        # Save the modified list in a json file
-        f = open('regions.json', 'w')
+        store = {'regions': stripvars(self.domanager.get_all_regions()),
+                 'dist_images': stripvars(self.domanager.get_images(type='distribution')),
+                 'app_images': stripvars(self.domanager.get_images(type='application'))}
+        f = open('datastore.json', 'w')
         f.truncate()
-        f.write(json.dumps(regions_list))
-        pprint(json.dumps(regions_list))
+        f.write(json.dumps(store))
         f.close()
