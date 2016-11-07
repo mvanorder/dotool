@@ -35,6 +35,13 @@ class ArgsParser(object):
                                    required=False,
                                    choices=self.config['Regions'],
                                    help='Region')
+        Images = dict(self.config['DistImages'])
+        Images.update(self.config['AppImages'])
+        parser_create.add_argument('-i', '--image',
+                                   action='store',
+                                   required=False,
+                                   choices=Images,
+                                   help='Image')
         parser_create.set_defaults(func=self.Actions.create)
 
         parser_action = subparser.add_parser('action')

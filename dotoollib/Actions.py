@@ -30,16 +30,16 @@ class Actions:
         droplet = digitalocean.Droplet(token=self.Config['auth']['token'],
                                        name=args.name,
                                        region=args.region,
-                                       image='ubuntu-14-04-x64', # Ubuntu 14.04 x64
+                                       image=args.image,
                                        size_slug='512mb',  # 512MB
                                        backups=False)
         from pprint import pprint
         pprint(vars(droplet))
 
     def update(self, args):
-        store = {'regions': stripvars(self.domanager.get_all_regions()),
-                 'dist_images': stripvars(self.domanager.get_images(type='distribution')),
-                 'app_images': stripvars(self.domanager.get_images(type='application'))}
+        store = {'Regions': stripvars(self.domanager.get_all_regions()),
+                 'DistImages': stripvars(self.domanager.get_images(type='distribution')),
+                 'AppImages': stripvars(self.domanager.get_images(type='application'))}
         f = open('datastore.json', 'w')
         f.truncate()
         f.write(json.dumps(store))
