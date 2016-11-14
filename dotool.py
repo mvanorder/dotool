@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 from pprint import pprint
@@ -30,5 +30,4 @@ except:
 actions = Actions(Config, manager)
 parser = ArgsParser(Config, actions)
 
-pprint(vars(parser.args))
 parser.args.func(parser.args)

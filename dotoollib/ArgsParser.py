@@ -18,6 +18,12 @@ class ArgsParser(object):
                                  choices=['all', 'servers', 'storage'],
                                  help='list servers, storage, or both(default: %(default)s).')
         parser_list.set_defaults(func=self.Actions.dolist)
+        parser_listslug = subparser.add_parser('listslug')
+        parser_listslug.add_argument('listslug',
+                                     action='store',
+                                     choices=['regions', 'images', 'sizes'],
+                                     help='list servers, storage, or both(default: %(default)s).')
+        parser_listslug.set_defaults(func=self.Actions.listslug)
 
         parser_create = subparser.add_parser('create')
         parser_create.add_argument('create',

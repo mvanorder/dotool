@@ -9,8 +9,9 @@ def loadstore():
     except:
         print('Unable to load regions.  Please run update.\n')
         return({'Regions': {},
-                 'DistImages': {},
-                 'AppImages': {}})
+                'DistImages': {},
+                'AppImages': {},
+                'Sizes': {}})
 
     return json.loads(f.read())
     f.close()

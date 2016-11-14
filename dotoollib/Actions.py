@@ -23,9 +23,60 @@ class Actions:
             name = droplet.name
             print(name)
 
+    def listslug(self, args):
+        import ast
+        from tabulate import tabulate
+        table = []
+        if args.listslug == 'regions':
+            headers = ['Name', 'Slug', 'Features']
+            #regions = self.Config['Regions']
+            #for region in sorted(regions,
+            #                     key=lambda regions: (regions['slug'])):
+            for region in self.Config['Regions']:
+                image = ast.literal_eval(self.Config['Regions'][region])
+                table.append([image['name'], region, ', '.join(image['features'])])
+            table = sorted(table)
+        elif args.listslug == 'images':
+            headers = ['Name', 'Slug', 'Regions']
+            for image in self.Config['DistImages']:
+                image = ast.literal_eval(self.Config['DistImages'][image])
+                table.append([image['distribution'] + ' ' + image['name'], image['slug'], ', '.join(image['regions'])])
+            for image in self.Config['AppImages']:
+                image = ast.literal_eval(self.Config['AppImages'][image])
+                table.append([image['distribution'] + ' ' + image['name'], image['slug'], ', '.join(image['regions'])])
+            table = sorted(table)
+        elif args.listslug == 'sizes':
+            headers = ['Slug',
+                       'vCPUs',
+                       'disk',
+                       'trans',
+                       'Monthly',
+                       'Hourly',
+                       'Regions',
+            ]
+            for image in self.Config['Sizes']:
+                image = ast.literal_eval(self.Config['Sizes'][image])
+                table.append([
+                              image['memory']/1024,
+                    image['slug'],
+                              str(image['vcpus']),
+                              str(image['disk']),
+                              str(int(image['transfer'])) + ' TB',
+                              '$' + str('{:9,.2f}'.format(image['price_monthly'])),
+                              '$' + str('{:5,.2f}'.format(image['price_hourly'])),
+                              ', '.join(image['regions']),
+                ])
+            table = sorted(table)
+            for i in table:
+                i.pop(0)
+        print(tabulate(table, headers, tablefmt="fancy_grid"))
+
     def create(self, args):
         if args.region == None:
-            print('Please provide a region to create in.')
+            print('Please select a region to create in.')
+            exit(1)
+        if args.image == None:
+            print('Please select an image to create from.')
             exit(1)
         droplet = digitalocean.Droplet(token=self.Config['auth']['token'],
                                        name=args.name,
@@ -39,7 +90,8 @@ class Actions:
     def update(self, args):
         store = {'Regions': stripvars(self.domanager.get_all_regions()),
                  'DistImages': stripvars(self.domanager.get_images(type='distribution')),
-                 'AppImages': stripvars(self.domanager.get_images(type='application'))}
+                 'AppImages': stripvars(self.domanager.get_images(type='application')),
+                 'Sizes': stripvars(self.domanager.get_all_sizes())}
         f = open('datastore.json', 'w')
         f.truncate()
         f.write(json.dumps(store))
