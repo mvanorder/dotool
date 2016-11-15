@@ -1,6 +1,8 @@
 import digitalocean
 import json
 import sys
+import ast
+from tabulate import tabulate
 from pprint import pprint
 
 def stripvars(source):
@@ -19,14 +21,14 @@ class Actions:
 
     def dolist(self, args):
         droplets = self.domanager.get_all_droplets()
-        from pprint import pprint
+        headers = ['Name', 'Loc', 'Size', 'IPv4', 'IPv6', 'Status']
+        table = []
         for droplet in droplets:
             name = droplet.name
-            print(name)
+            table.append([droplet.name, droplet.region['slug'], droplet.size_slug, droplet.ip_address, droplet.ip_v6_address, droplet.status])
+        print(tabulate(table, headers, tablefmt="fancy_grid"))
 
     def listslug(self, args):
-        import ast
-        from tabulate import tabulate
         table = []
         if args.listslug == 'regions':
             headers = ['Name', 'Slug', 'Features']
@@ -109,3 +111,43 @@ class Actions:
         f.truncate()
         f.write(json.dumps(store))
         f.close()
+
+    def status(self, args):
+        droplets = self.domanager.get_all_droplets()
+        from pprint import pprint
+        droplet_dict = {}
+        for droplet in droplets:
+            droplet_dict[droplet.name] = droplet
+        if args.droplet in droplet_dict:
+            actions = droplet_dict[args.droplet].get_actions()
+            if args.verbose:
+                headers = ['Value']
+                table = []
+                this_droplet = vars(droplet_dict[args.droplet])
+                this_droplet['image'] = this_droplet['image']['distribution'] + ' ' + this_droplet['image']['name']
+                this_droplet['region'] = this_droplet['region']['name']
+                this_droplet['size'] = this_droplet['size_slug']
+                this_droplet['kernel'] = this_droplet['kernel']['name']
+                this_droplet['features'] = ', '.join(this_droplet['features'])
+                for i in ['_log', 'token', 'size_slug', 'end_point', 'networks']:
+                    this_droplet.pop(i, None)
+                for key in this_droplet:
+                    row = [key]
+                    row.append(this_droplet[key])
+                    table.append(row)
+                table = sorted(table)
+                print(tabulate(table, headers, tablefmt="fancy_grid"))
+            print('Status: ' + actions[0].type + ' ' + actions[0].status + ' ' + actions[0].completed_at)
+        else:
+            print('Unable to find droplet named ' + args.droplet)
+
+"""        for droplet in droplets:
+            name = droplet.name
+            print(name)
+            actions = droplet.get_actions()
+            #for action in actions:
+            #    action.load()
+            #    # Once it shows complete, droplet is up and running
+            #    pprint(action.type + ' ' + action.status)
+            print(actions[0].type + ' ' + actions[0].status + ' ' + actions[0].completed_at)
+"""
