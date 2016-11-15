@@ -4,11 +4,11 @@ class ArgsParser(object):
     def __init__(self, config, Actions):
         self.config = config
         self.Actions = Actions
+        self.parser = argparse.ArgumentParser(description='Digital Ocean tool')
         self.args = self.parse()
 
     def parse(self):
-        parser = argparse.ArgumentParser(description='Digital Ocean tool')
-        subparser = parser.add_subparsers()
+        subparser = self.parser.add_subparsers()
 
         parser_list = subparser.add_parser('list')
         parser_list.add_argument('list',
@@ -18,6 +18,7 @@ class ArgsParser(object):
                                  choices=['all', 'servers', 'storage'],
                                  help='list servers, storage, or both(default: %(default)s).')
         parser_list.set_defaults(func=self.Actions.dolist)
+
         parser_listslug = subparser.add_parser('listslug')
         parser_listslug.add_argument('listslug',
                                      action='store',
@@ -74,4 +75,4 @@ class ArgsParser(object):
                                    choices=['all', 'regions'])
         parser_update.set_defaults(func=self.Actions.update)
 
-        return parser.parse_args()
+        return self.parser.parse_args()

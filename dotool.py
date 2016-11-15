@@ -30,4 +30,7 @@ except:
 actions = Actions(Config, manager)
 parser = ArgsParser(Config, actions)
 
-parser.args.func(parser.args)
+if 'func' in parser.args:
+    parser.args.func(parser.args)
+else:
+    parser.parser.parse_args('-h')
