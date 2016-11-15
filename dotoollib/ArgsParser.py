@@ -41,7 +41,25 @@ class ArgsParser(object):
                                    action='store',
                                    required=False,
                                    choices=self.config['Regions'],
-                                   help='Region')
+                                   help='Droplet region')
+        parser_create.add_argument('-s', '--size',
+                                   action='store',
+                                   required=False,
+                                   choices=self.config['Sizes'],
+                                   help='Droplet size')
+        parser_create.add_argument('-b', '--backups',
+                                   action='store_true',
+                                   required=False,
+                                   help='Enable Backups')
+        parser_create.add_argument('-6', '--ipv6',
+                                   action='store_true',
+                                   required=False,
+                                   help='Enable IPv6')
+        parser_create.add_argument('-p', '--privnet',
+                                   action='store_true',
+                                   required=False,
+                                   help='Enable private networking')
+        
         Images = dict(self.config['DistImages'])
         Images.update(self.config['AppImages'])
         parser_create.add_argument('-i', '--image',

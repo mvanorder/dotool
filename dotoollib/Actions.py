@@ -1,5 +1,6 @@
 import digitalocean
 import json
+import sys
 from pprint import pprint
 
 def stripvars(source):
@@ -73,17 +74,29 @@ class Actions:
 
     def create(self, args):
         if args.region == None:
-            print('Please select a region to create in.')
+            print('Please select a region to create in.\n\n' +
+                  'To view a list run ' + sys.argv[0] + ' listslug regions')
             exit(1)
         if args.image == None:
-            print('Please select an image to create from.')
+            print('Please select an image to create from.\n\n' +
+                  'To view a list run ' + sys.argv[0] + ' listslug images')
+            exit(1)
+        if args.size == None:
+            print('Please select a droplet size to create.\n\n' +
+                  'To view a list run ' + sys.argv[0] + ' listslug sizes')
             exit(1)
         droplet = digitalocean.Droplet(token=self.Config['auth']['token'],
                                        name=args.name,
                                        region=args.region,
                                        image=args.image,
-                                       size_slug='512mb',  # 512MB
-                                       backups=False)
+                                       size_slug=args.size,
+                                       backups=args.backups,
+                                       #ssh_keys_id,
+                                       ipv6 = args.ipv6,
+                                       private_networking = args.privnet,
+                                       #volumes
+        )
+        droplet.create()
         from pprint import pprint
         pprint(vars(droplet))
 
