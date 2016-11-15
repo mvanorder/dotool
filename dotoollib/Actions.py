@@ -25,29 +25,37 @@ class Actions:
         table = []
         for droplet in droplets:
             name = droplet.name
-            table.append([droplet.name, droplet.region['slug'], droplet.size_slug, droplet.ip_address, droplet.ip_v6_address, droplet.status])
-        print(tabulate(table, headers, tablefmt="fancy_grid"))
+            table.append([droplet.name,
+                          droplet.region['slug'],
+                          droplet.size_slug,
+                          droplet.ip_address,
+                          droplet.ip_v6_address,
+                          droplet.status])
+            print(tabulate(table, headers, tablefmt="fancy_grid"))
 
     def listslug(self, args):
         table = []
         if args.listslug == 'regions':
             headers = ['Name', 'Slug', 'Features']
-            #regions = self.Config['Regions']
-            #for region in sorted(regions,
-            #                     key=lambda regions: (regions['slug'])):
             for region in self.Config['Regions']:
                 image = ast.literal_eval(self.Config['Regions'][region])
-                table.append([image['name'], region, ', '.join(image['features'])])
+                table.append([image['name'],
+                              region,
+                              ', '.join(image['features'])])
             table = sorted(table)
+
         elif args.listslug == 'images':
             headers = ['Name', 'Slug', 'Regions']
             for image in self.Config['DistImages']:
                 image = ast.literal_eval(self.Config['DistImages'][image])
-                table.append([image['distribution'] + ' ' + image['name'], image['slug'], ', '.join(image['regions'])])
+                table.append([image['distribution'] + ' ' + image['name'],
+                              image['slug'], ', '.join(image['regions'])])
             for image in self.Config['AppImages']:
                 image = ast.literal_eval(self.Config['AppImages'][image])
-                table.append([image['distribution'] + ' ' + image['name'], image['slug'], ', '.join(image['regions'])])
+                table.append([image['distribution'] + ' ' + image['name'],
+                              image['slug'], ', '.join(image['regions'])])
             table = sorted(table)
+
         elif args.listslug == 'sizes':
             headers = ['Slug',
                        'vCPUs',
@@ -55,23 +63,21 @@ class Actions:
                        'trans',
                        'Monthly',
                        'Hourly',
-                       'Regions',
-            ]
+                       'Regions']
             for image in self.Config['Sizes']:
                 image = ast.literal_eval(self.Config['Sizes'][image])
-                table.append([
-                              image['memory']/1024,
-                    image['slug'],
+                table.append([image['memory']/1024,
+                              image['slug'],
                               str(image['vcpus']),
                               str(image['disk']),
                               str(int(image['transfer'])) + ' TB',
                               '$' + str('{:9,.2f}'.format(image['price_monthly'])),
                               '$' + str('{:5,.2f}'.format(image['price_hourly'])),
-                              ', '.join(image['regions']),
-                ])
+                              ', '.join(image['regions'])])
             table = sorted(table)
             for i in table:
                 i.pop(0)
+
         print(tabulate(table, headers, tablefmt="fancy_grid"))
 
     def create(self, args):
@@ -87,6 +93,7 @@ class Actions:
             print('Please select a droplet size to create.\n\n' +
                   'To view a list run ' + sys.argv[0] + ' listslug sizes')
             exit(1)
+
         droplet = digitalocean.Droplet(token=self.Config['auth']['token'],
                                        name=args.name,
                                        region=args.region,
@@ -114,12 +121,14 @@ class Actions:
 
     def status(self, args):
         droplets = self.domanager.get_all_droplets()
-        from pprint import pprint
         droplet_dict = {}
+
         for droplet in droplets:
             droplet_dict[droplet.name] = droplet
+
         if args.droplet in droplet_dict:
             actions = droplet_dict[args.droplet].get_actions()
+
             if args.verbose:
                 headers = ['Value']
                 table = []
@@ -132,22 +141,10 @@ class Actions:
                 for i in ['_log', 'token', 'size_slug', 'end_point', 'networks']:
                     this_droplet.pop(i, None)
                 for key in this_droplet:
-                    row = [key]
-                    row.append(this_droplet[key])
-                    table.append(row)
+                    table.append([key, this_droplet[key]])
                 table = sorted(table)
                 print(tabulate(table, headers, tablefmt="fancy_grid"))
+
             print('Status: ' + actions[0].type + ' ' + actions[0].status + ' ' + actions[0].completed_at)
         else:
             print('Unable to find droplet named ' + args.droplet)
-
-"""        for droplet in droplets:
-            name = droplet.name
-            print(name)
-            actions = droplet.get_actions()
-            #for action in actions:
-            #    action.load()
-            #    # Once it shows complete, droplet is up and running
-            #    pprint(action.type + ' ' + action.status)
-            print(actions[0].type + ' ' + actions[0].status + ' ' + actions[0].completed_at)
-"""
