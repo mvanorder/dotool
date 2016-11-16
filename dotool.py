@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 
 import sys
-from pprint import pprint
 
 # Ensure that this code is running in Python 3 or greater
 if sys.version_info < (3, 0):
-    print("Sorry, requires Python 3.x, you are running version " + sys.version)
+    print("Sorry, requires Python 3.x, you are running version " + sys.version.split()[0])
     exit(1)
 
-# Try to import the digitalocean library
-try:
-    import digitalocean
-except ImportError:
-    print("python-digitalocean doesn't appear to be installed, please run install.py");
-    exit(1)
+for import_item in open('includes.csv', 'r'):
+    # Try to import each required library that doesn't come with python normally
+    try:
+        exec('import ' + import_item.split(',')[1])
+    except ImportError:
+        print(import_item.split(',')[1].strip('\n') + ' doesn\'t appear to be installed, please run install.py');
+        exit(1)
 
 # Import local libraries
 from dotoollib import Config, ArgsParser, Actions
