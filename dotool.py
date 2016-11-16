@@ -33,4 +33,4 @@ parser = ArgsParser(Config, actions)
 if 'func' in parser.args:
     parser.args.func(parser.args)
 else:
-    parser.parser.parse_args('-h')
+    parser.parser.parse_args(['-h'])

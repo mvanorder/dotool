@@ -105,8 +105,9 @@ class Actions:
                                        #volumes
         )
         droplet.create()
-        from pprint import pprint
-        pprint(vars(droplet))
+        #from pprint import pprint
+        #pprint(vars(droplet))
+        print('Creating ' + droplet.name, end='', flush=True)
         while True:
             actions = droplet.get_actions()
             if actions[0].status == 'completed':
@@ -114,6 +115,34 @@ class Actions:
                 break
             else:
                 print('.', end='', flush=True)
+
+    def delete(self, args):
+        droplets = self.domanager.get_all_droplets()
+        droplet_dict = {}
+
+        for droplet in droplets:
+            droplet_dict[droplet.name] = droplet
+
+        if args.droplet in droplet_dict:
+            #headers = ['Name', 'Loc', 'Size', 'IPv4', 'IPv6', 'Status']
+            table = [['Name', droplet_dict[args.droplet].name],
+                     ['Location', droplet_dict[args.droplet].region['slug']],
+                     ['Size', droplet_dict[args.droplet].size_slug],
+                     ['IPv4', droplet_dict[args.droplet].ip_address],
+                     ['IPv6', droplet_dict[args.droplet].ip_v6_address],
+                     ['Status', droplet_dict[args.droplet].status]]
+            print(tabulate(table, tablefmt="fancy_grid"))
+            while True:
+                verify = input('Are you sure you want to delete this droplet(YES/NO): ')
+                if verify == 'YES':
+                    droplet_dict[args.droplet].destroy()
+                    break
+                elif verify == 'NO':
+                    break
+                else:
+                    print(verify + ' is not a valid answer.')
+        else:
+            print('Unable to find droplet named ' + args.droplet)
 
     def update(self, args):
         store = {'Regions': stripvars(self.domanager.get_all_regions()),

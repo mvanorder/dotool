@@ -67,6 +67,18 @@ class ArgsParser(object):
                                    help='Droplet size')
         parser_create.set_defaults(func=self.Actions.create)
 
+        parser_delete = subparser.add_parser('delete')
+        parser_delete.add_argument('delete',
+                                   default='server',
+                                   const='server',
+                                   nargs='?',
+                                   choices=['server', 'storage'],
+                                   help='create server or storage(default: %(default)s).')
+        parser_delete.add_argument('droplet',
+                                   action='store',
+                                   help='Droplet name.')
+        parser_delete.set_defaults(func=self.Actions.delete)
+
         parser_list = subparser.add_parser('list')
         parser_list.add_argument('list',
                                  default='all',
