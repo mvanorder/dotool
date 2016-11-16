@@ -3,7 +3,6 @@ import json
 import sys
 import ast
 from tabulate import tabulate
-from pprint import pprint
 
 def stripvars(source):
     return_dict = {}
@@ -31,7 +30,7 @@ class Actions:
                           droplet.ip_address,
                           droplet.ip_v6_address,
                           droplet.status])
-            print(tabulate(table, headers, tablefmt="fancy_grid"))
+        print(tabulate(table, headers, tablefmt="fancy_grid"))
 
     def listslug(self, args):
         table = []
@@ -108,6 +107,13 @@ class Actions:
         droplet.create()
         from pprint import pprint
         pprint(vars(droplet))
+        while True:
+            actions = droplet.get_actions()
+            if actions[0].status == 'completed':
+                print()
+                break
+            else:
+                print('.', end='', flush=True)
 
     def update(self, args):
         store = {'Regions': stripvars(self.domanager.get_all_regions()),
@@ -136,7 +142,8 @@ class Actions:
                 this_droplet['image'] = this_droplet['image']['distribution'] + ' ' + this_droplet['image']['name']
                 this_droplet['region'] = this_droplet['region']['name']
                 this_droplet['size'] = this_droplet['size_slug']
-                this_droplet['kernel'] = this_droplet['kernel']['name']
+                if this_droplet['kernel']:
+                    this_droplet['kernel'] = this_droplet['kernel']['name']
                 this_droplet['features'] = ', '.join(this_droplet['features'])
                 for i in ['_log', 'token', 'size_slug', 'end_point', 'networks']:
                     this_droplet.pop(i, None)
@@ -145,6 +152,10 @@ class Actions:
                 table = sorted(table)
                 print(tabulate(table, headers, tablefmt="fancy_grid"))
 
-            print('Status: ' + actions[0].type + ' ' + actions[0].status + ' ' + actions[0].completed_at)
+            print('Status: ' + actions[0].type + ' ' + actions[0].status + ' ', end='')
+            if actions[0].status == 'completed':
+                print(actions[0].completed_at)
+            else:
+                print()
         else:
             print('Unable to find droplet named ' + args.droplet)
